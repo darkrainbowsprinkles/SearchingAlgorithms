@@ -1,3 +1,6 @@
+using System;
+using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,6 +9,7 @@ public class GraphUI : MonoBehaviour
     [SerializeField] NodeUI nodePrefab;
     [SerializeField] Transform nodesContainer;
     [SerializeField] Button startSearchButton;
+    [SerializeField] TMP_Dropdown searchTypeDropdown;
     Graph graph;
 
     void Awake()
@@ -30,10 +34,17 @@ public class GraphUI : MonoBehaviour
             NodeUI nodeInstance = Instantiate(nodePrefab, nodesContainer);
             nodeInstance.SetNode(node);
         }
+
+        string[] searchTypes = Enum.GetNames(typeof(SearchType));
+
+        searchTypeDropdown.ClearOptions();
+        searchTypeDropdown.AddOptions(searchTypes.ToList());
     }
 
     void StartSearch()
     {
-        graph.StartSearch();
+        int selectedIndex = searchTypeDropdown.value;
+        SearchType searchType = (SearchType)selectedIndex;
+        graph.StartSearch(searchType);
     }
 }

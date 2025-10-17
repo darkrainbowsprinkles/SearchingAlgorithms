@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Graph : MonoBehaviour
 {
     [SerializeField] int size = 9;
     Dictionary<Vector2Int, Node> nodes = new();
+    HashSet<Node> visited = new();
     Vector2Int[] directions =
     {
         Vector2Int.up,
@@ -18,52 +20,78 @@ public class Graph : MonoBehaviour
         return nodes.Values;
     }
 
-    public void StartSearch()
+    public List<Node> StartSearch(SearchType searchType)
     {
-        BreadthFirstSearch();
+        ClearGraph();
+
+        switch (searchType)
+        {
+            case SearchType.BFS:
+                return Search(new QueueFrontier());
+
+            case SearchType.DFS:
+                return Search(new StackFrontier());
+        }
+
+        return null;
     }
 
     void Start()
     {
         CreateGraph();
     }
-    
-    List<Node> BreadthFirstSearch()
+
+    void ClearGraph()
+    {
+        foreach (Node node in nodes.Values)
+        {
+            node.SetParent(null);
+            node.SetIsExplored(false);
+            node.SetIsPath(false);
+        }
+    }
+
+    List<Node> Search(IFrontier frontier)
     {
         Node startNode = GetNode(new Vector2Int(0, 0));
         Node goalNode = GetNode(new Vector2Int(8, 8));
 
-        Queue<Node> frontier = new();
-        HashSet<Node> visited = new();
+        visited.Clear();
 
-        frontier.Enqueue(startNode);
+        frontier.Add(startNode);
+        visited.Add(startNode);
 
-        while (frontier.Count != 0)
+        while (frontier.GetSize() != 0)
         {
-            Node currentNode = frontier.Dequeue();
+            Node currentNode = frontier.Take();
 
             if (goalNode == currentNode)
             {
                 break;
             }
 
-            visited.Add(currentNode);
-            currentNode.SetIsExplored(true);
-
-            foreach (Node neighbour in GetNeighbours(currentNode))
-            {
-                if (visited.Contains(neighbour))
-                {
-                    continue;
-                }
-
-                neighbour.SetParent(currentNode);
-                visited.Add(neighbour);
-                frontier.Enqueue(neighbour);
-            }
+            VisitNode(frontier, currentNode);
         }
 
         return GetPath(goalNode);
+    }
+
+    void VisitNode(IFrontier frontier, Node currentNode)
+    {
+        visited.Add(currentNode);
+        currentNode.SetIsExplored(true);
+
+        foreach (Node neighbour in GetNeighbours(currentNode))
+        {
+            if (visited.Contains(neighbour))
+            {
+                continue;
+            }
+
+            neighbour.SetParent(currentNode);
+            visited.Add(neighbour);
+            frontier.Add(neighbour);
+        }
     }
 
     List<Node> GetPath(Node goalNode)

@@ -28,10 +28,15 @@ public class NodeUI : MonoBehaviour
         {
             image.color = Color.gray;
         }
-        
+
         if (node.IsPath())
         {
             image.color = Color.yellow;
+        }
+        
+        if (!node.IsExplored() && !node.IsPath())
+        {
+            image.color = Color.white;
         }
     }
 }
