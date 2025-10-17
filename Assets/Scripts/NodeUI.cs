@@ -6,8 +6,9 @@ public class NodeUI : MonoBehaviour
 {
     [SerializeField] TMP_Text coordinatesText;
     [SerializeField] TMP_Text valueText;
+    [SerializeField] Image statusIcon;
     Node node;
-    Image image;
+    Image background;
     Button button;
 
     public void SetNode(Node node)
@@ -17,11 +18,12 @@ public class NodeUI : MonoBehaviour
         coordinatesText.text = $"{node.GetCoordinates()}";
         valueText.text = $"{node.GetValue()}";
         node.OnChange += RefreshNode;
+        RefreshNode();
     }
 
     void Awake()
     {
-        image = GetComponent<Image>();
+        background = GetComponent<Image>();
         button = GetComponent<Button>();
     }
 
@@ -37,6 +39,11 @@ public class NodeUI : MonoBehaviour
 
     void SetNonWalkable()
     {
+        if (node.IsStart() || node.IsGoal())
+        {
+            return;
+        }
+
         node.SetIsWalkable(false);
         SetDarkColor(Color.red);
     }
@@ -48,17 +55,25 @@ public class NodeUI : MonoBehaviour
             return;
         }
 
-        if (node.IsExplored())
+        bool isStart = node.IsStart();
+        bool isGoal = node.IsGoal();
+
+        statusIcon.enabled = isStart || isGoal;
+        
+        if (statusIcon.enabled)
         {
-            SetLightColor(Color.gray);
+            statusIcon.color = isStart ? Color.green : Color.magenta;
         }
 
         if (node.IsPath())
         {
             SetLightColor(Color.yellow);
         }
-
-        if (!node.IsExplored() && !node.IsPath())
+        else if (node.IsExplored())
+        {
+            SetLightColor(Color.gray);
+        }
+        else
         {
             SetLightColor(Color.white);
         }
@@ -66,14 +81,14 @@ public class NodeUI : MonoBehaviour
 
     void SetLightColor(Color color)
     {
-        image.color = color;
+        background.color = color;
         coordinatesText.color = Color.black;
         valueText.color = Color.black;
     }
     
     void SetDarkColor(Color color)
     {
-        image.color = color;
+        background.color = color;
         coordinatesText.color = Color.white;
         valueText.color = Color.white;
     }

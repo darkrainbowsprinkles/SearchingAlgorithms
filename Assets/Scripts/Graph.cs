@@ -53,6 +53,8 @@ public class Graph : MonoBehaviour
         CreateGraph();
         startNode = GetNode(new Vector2Int(0, 0));
         goalNode = GetNode(new Vector2Int(8, 8));
+        startNode.SetIsStart(true);
+        goalNode.SetIsGoal(true);
     }
 
     void ResetGraph()
