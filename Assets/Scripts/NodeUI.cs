@@ -4,8 +4,9 @@ using UnityEngine.UI;
 
 public class NodeUI : MonoBehaviour
 {
+    [SerializeField] TMP_Text coordinatesText;
+    [SerializeField] TMP_Text valueText;
     Node node;
-    TMP_Text coordinatesText;
     Image image;
 
     public void SetNode(Node node)
@@ -13,12 +14,12 @@ public class NodeUI : MonoBehaviour
         this.node = node;
 
         coordinatesText.text = $"{node.GetCoordinates()}";
+        valueText.text = $"{node.GetValue()}";
         node.OnChange += RefreshNode;
     }
 
     void Awake()
     {
-        coordinatesText = GetComponentInChildren<TMP_Text>();
         image = GetComponent<Image>();
     }
 

@@ -1,5 +1,6 @@
 public enum SearchType
 {
     BFS,
-    DFS
+    DFS,
+    GBFS
 }

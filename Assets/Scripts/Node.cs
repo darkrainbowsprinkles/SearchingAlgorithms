@@ -5,18 +5,25 @@ public class Node
 {
     public event Action OnChange;
     Vector2Int coordinates;
+    int value;
     Node parent;
     bool isExplored;
     bool isPath;
 
-    public Node(Vector2Int coordinates)
+    public Node(Vector2Int coordinates, int value)
     {
         this.coordinates = coordinates;
+        this.value = value;
     }
 
     public Vector2Int GetCoordinates()
     {
         return coordinates;
+    }
+
+    public int GetValue()
+    {
+        return value;
     }
 
     public Node GetParent()

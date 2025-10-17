@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Graph : MonoBehaviour
@@ -31,6 +30,9 @@ public class Graph : MonoBehaviour
 
             case SearchType.DFS:
                 return Search(new StackFrontier());
+
+            case SearchType.GBFS:
+                return Search(new ListFrontier());
         }
 
         return null;
@@ -147,7 +149,8 @@ public class Graph : MonoBehaviour
     void CreateNode(int x, int y)
     {
         Vector2Int coordinates = new(x, y);
-        Node newNode = new(coordinates);
+        int value = Random.Range(0, 100);
+        Node newNode = new(coordinates, value);
         nodes[coordinates] = newNode;
     }
 }
