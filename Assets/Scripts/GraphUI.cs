@@ -9,6 +9,7 @@ public class GraphUI : MonoBehaviour
     [SerializeField] NodeUI nodePrefab;
     [SerializeField] Transform nodesContainer;
     [SerializeField] Button startSearchButton;
+    [SerializeField] Button clearObstaclesButton;
     [SerializeField] TMP_Dropdown searchTypeDropdown;
     Graph graph;
 
@@ -20,11 +21,13 @@ public class GraphUI : MonoBehaviour
     void OnEnable()
     {
         startSearchButton.onClick.AddListener(StartSearch);
+        clearObstaclesButton.onClick.AddListener(graph.ClearObstacles);
     }
 
     void OnDisable()
     {
         startSearchButton.onClick.RemoveListener(StartSearch);
+        clearObstaclesButton.onClick.RemoveListener(graph.ClearObstacles);
     }
 
     void Start()

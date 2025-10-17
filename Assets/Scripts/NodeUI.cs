@@ -8,6 +8,7 @@ public class NodeUI : MonoBehaviour
     [SerializeField] TMP_Text valueText;
     Node node;
     Image image;
+    Button button;
 
     public void SetNode(Node node)
     {
@@ -21,23 +22,59 @@ public class NodeUI : MonoBehaviour
     void Awake()
     {
         image = GetComponent<Image>();
+        button = GetComponent<Button>();
+    }
+
+    void OnEnable()
+    {
+        button.onClick.AddListener(SetNonWalkable);
+    }
+
+    void OnDisable()
+    {
+        button.onClick.RemoveListener(SetNonWalkable);
+    }
+
+    void SetNonWalkable()
+    {
+        node.SetIsWalkable(false);
+        SetDarkColor(Color.red);
     }
 
     void RefreshNode()
     {
+        if (!node.IsWalkable())
+        {
+            return;
+        }
+
         if (node.IsExplored())
         {
-            image.color = Color.gray;
+            SetLightColor(Color.gray);
         }
 
         if (node.IsPath())
         {
-            image.color = Color.yellow;
+            SetLightColor(Color.yellow);
         }
-        
+
         if (!node.IsExplored() && !node.IsPath())
         {
-            image.color = Color.white;
+            SetLightColor(Color.white);
         }
+    }
+
+    void SetLightColor(Color color)
+    {
+        image.color = color;
+        coordinatesText.color = Color.black;
+        valueText.color = Color.black;
+    }
+    
+    void SetDarkColor(Color color)
+    {
+        image.color = color;
+        coordinatesText.color = Color.white;
+        valueText.color = Color.white;
     }
 }

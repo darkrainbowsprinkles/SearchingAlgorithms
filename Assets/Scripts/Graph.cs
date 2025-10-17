@@ -13,6 +13,8 @@ public class Graph : MonoBehaviour
         Vector2Int.right,
         Vector2Int.left
     };
+    Node startNode;
+    Node goalNode;
 
     public IEnumerable<Node> GetNodes()
     {
@@ -21,7 +23,7 @@ public class Graph : MonoBehaviour
 
     public List<Node> StartSearch(SearchType searchType)
     {
-        ClearGraph();
+        ResetGraph();
 
         switch (searchType)
         {
@@ -38,12 +40,22 @@ public class Graph : MonoBehaviour
         return null;
     }
 
+    public void ClearObstacles()
+    {
+        foreach (Node node in nodes.Values)
+        {
+            node.SetIsWalkable(true);
+        }
+    }
+
     void Start()
     {
         CreateGraph();
+        startNode = GetNode(new Vector2Int(0, 0));
+        goalNode = GetNode(new Vector2Int(8, 8));
     }
 
-    void ClearGraph()
+    void ResetGraph()
     {
         foreach (Node node in nodes.Values)
         {
@@ -55,9 +67,6 @@ public class Graph : MonoBehaviour
 
     List<Node> Search(IFrontier frontier)
     {
-        Node startNode = GetNode(new Vector2Int(0, 0));
-        Node goalNode = GetNode(new Vector2Int(8, 8));
-
         visited.Clear();
 
         frontier.Add(startNode);
@@ -86,6 +95,11 @@ public class Graph : MonoBehaviour
         foreach (Node neighbour in GetNeighbours(currentNode))
         {
             if (visited.Contains(neighbour))
+            {
+                continue;
+            }
+
+            if (!neighbour.IsWalkable())
             {
                 continue;
             }
@@ -149,7 +163,7 @@ public class Graph : MonoBehaviour
     void CreateNode(int x, int y)
     {
         Vector2Int coordinates = new(x, y);
-        int value = Random.Range(0, 100);
+        int value = (int)Vector2.Distance(new Vector2Int(0,0), coordinates);
         Node newNode = new(coordinates, value);
         nodes[coordinates] = newNode;
     }

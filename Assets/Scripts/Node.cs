@@ -7,8 +7,9 @@ public class Node
     Vector2Int coordinates;
     int value;
     Node parent;
-    bool isExplored;
-    bool isPath;
+    bool isWalkable = true;
+    bool isExplored = false;
+    bool isPath = false;
 
     public Node(Vector2Int coordinates, int value)
     {
@@ -31,6 +32,11 @@ public class Node
         return parent;
     }
 
+    public bool IsWalkable()
+    {
+        return isWalkable;
+    }
+
     public bool IsExplored()
     {
         return isExplored;
@@ -44,6 +50,12 @@ public class Node
     public void SetParent(Node parent)
     {
         this.parent = parent;
+        OnChange.Invoke();
+    }
+
+    public void SetIsWalkable(bool isWalkable)
+    {
+        this.isWalkable = isWalkable;
         OnChange.Invoke();
     }
 
