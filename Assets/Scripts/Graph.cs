@@ -6,6 +6,7 @@ public class Graph : MonoBehaviour
     [SerializeField] int size = 9;
     Dictionary<Vector2Int, Node> nodes = new();
     HashSet<Node> visited = new();
+    IFrontier frontier;
     Vector2Int[] directions =
     {
         Vector2Int.up,
@@ -15,6 +16,11 @@ public class Graph : MonoBehaviour
     };
     Node startNode;
     Node goalNode;
+
+    public IEnumerable<Node> GetVisited()
+    {
+        return visited;
+    }
 
     public IEnumerable<Node> GetNodes()
     {
@@ -28,16 +34,74 @@ public class Graph : MonoBehaviour
         switch (searchType)
         {
             case SearchType.BFS:
-                return Search(new QueueFrontier());
+                return GenericSearch(new QueueFrontier());
 
             case SearchType.DFS:
-                return Search(new StackFrontier());
+                return GenericSearch(new StackFrontier());
 
             case SearchType.GBFS:
-                return Search(new ListFrontier());
+                return GenericSearch(new HeuristicList());
+
+            case SearchType.AStar:
+                return AStarSearch();
         }
 
         return null;
+    }
+
+    List<Node> AStarSearch()
+    {
+        frontier = new CostList();
+        visited.Clear();
+        
+        foreach (Node node in nodes.Values)
+        {
+            node.SetPathCost(int.MaxValue);
+        }
+        
+        startNode.SetPathCost(0);
+        frontier.Add(startNode);
+
+        while (frontier.GetSize() != 0)
+        {
+            Node current = frontier.Take();
+
+            if (current == goalNode)
+            {
+                break;
+            }
+
+            if (visited.Contains(current))
+            {
+                continue;
+            }
+
+            visited.Add(current);
+            current.SetIsExplored(true);
+
+            foreach (Node neighbour in GetNeighbours(current))
+            {
+                if (!neighbour.IsWalkable())
+                {
+                    continue;
+                }
+
+                int tentativeG = current.GetPathCost() + 1;
+
+                if (tentativeG < neighbour.GetPathCost())
+                {
+                    neighbour.SetParent(current);
+                    neighbour.SetPathCost(tentativeG);
+
+                    if (!visited.Contains(neighbour))
+                    {
+                        frontier.Add(neighbour);
+                    }
+                }
+            }
+        }
+
+        return GetPath(goalNode);
     }
 
     public void ClearObstacles()
@@ -50,11 +114,15 @@ public class Graph : MonoBehaviour
 
     void Start()
     {
-        CreateGraph();
         startNode = GetNode(new Vector2Int(0, 0));
         goalNode = GetNode(new Vector2Int(8, 8));
         startNode.SetIsStart(true);
         goalNode.SetIsGoal(true);
+    }
+
+    void Awake()
+    {
+        CreateGraph();
     }
 
     void ResetGraph()
@@ -64,32 +132,35 @@ public class Graph : MonoBehaviour
             node.SetParent(null);
             node.SetIsExplored(false);
             node.SetIsPath(false);
+            node.SetPathCost(0);
         }
     }
 
-    List<Node> Search(IFrontier frontier)
+    List<Node> GenericSearch(IFrontier frontier)
     {
+        this.frontier = frontier;
+
         visited.Clear();
 
-        frontier.Add(startNode);
+        this.frontier.Add(startNode);
         visited.Add(startNode);
 
-        while (frontier.GetSize() != 0)
+        while (this.frontier.GetSize() != 0)
         {
-            Node currentNode = frontier.Take();
+            Node currentNode = this.frontier.Take();
 
             if (goalNode == currentNode)
             {
                 break;
             }
 
-            VisitNode(frontier, currentNode);
+            VisitNode(currentNode);
         }
 
         return GetPath(goalNode);
     }
 
-    void VisitNode(IFrontier frontier, Node currentNode)
+    void VisitNode(Node currentNode)
     {
         visited.Add(currentNode);
         currentNode.SetIsExplored(true);
@@ -165,8 +236,14 @@ public class Graph : MonoBehaviour
     void CreateNode(int x, int y)
     {
         Vector2Int coordinates = new(x, y);
-        int value = (int)Vector2.Distance(new Vector2Int(0,0), coordinates);
+        int value = GetManhattanDistance(coordinates);
         Node newNode = new(coordinates, value);
         nodes[coordinates] = newNode;
+    }
+    
+    int GetManhattanDistance(Vector2Int coordinates)
+    {
+        Vector2Int goalCoordinates = new(size - 1, size - 1);
+        return (int)Vector2.Distance(coordinates, goalCoordinates);
     }
 }

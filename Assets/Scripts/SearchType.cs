@@ -2,5 +2,6 @@ public enum SearchType
 {
     BFS,
     DFS,
-    GBFS
+    GBFS,
+    AStar
 }

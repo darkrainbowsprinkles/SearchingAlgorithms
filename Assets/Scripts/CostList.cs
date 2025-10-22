@@ -1,8 +1,13 @@
 using System.Collections.Generic;
 
-public class ListFrontier : IFrontier
+public class CostList : IFrontier
 {
     List<Node> list = new();
+
+    public bool ContainsNode(Node node)
+    {
+        return list.Contains(node);
+    }
 
     public int GetSize()
     {
@@ -16,14 +21,18 @@ public class ListFrontier : IFrontier
 
     public Node Take()
     {
-        int bestValue = int.MaxValue;
+        int bestCost = int.MaxValue;
         Node bestNode = null;
 
         foreach (Node node in list)
         {
-            if (node.GetValue() < bestValue)
+            int pathCost = node.GetPathCost();
+            int heuristicValue = node.GetHeuristicValue();
+            int totalCost = pathCost + heuristicValue;
+
+            if (totalCost < bestCost)
             {
-                bestValue = node.GetValue();
+                bestCost = totalCost;
                 bestNode = node;
             }
         }

@@ -5,7 +5,8 @@ public class Node
 {
     public event Action OnChange;
     Vector2Int coordinates;
-    int value;
+    int heuristicValue;
+    int pathCost;
     Node parent;
     bool isStart = false;
     bool isGoal = false;
@@ -13,10 +14,10 @@ public class Node
     bool isExplored = false;
     bool isPath = false;
 
-    public Node(Vector2Int coordinates, int value)
+    public Node(Vector2Int coordinates, int heuristicValue)
     {
         this.coordinates = coordinates;
-        this.value = value;
+        this.heuristicValue = heuristicValue;
     }
 
     public Vector2Int GetCoordinates()
@@ -24,9 +25,14 @@ public class Node
         return coordinates;
     }
 
-    public int GetValue()
+    public int GetHeuristicValue()
     {
-        return value;
+        return heuristicValue;
+    }
+
+    public int GetPathCost()
+    {
+        return pathCost;
     }
 
     public Node GetParent()
@@ -57,6 +63,11 @@ public class Node
     public bool IsPath()
     {
         return isPath;
+    }
+
+    public void SetPathCost(int pathCost)
+    {
+        this.pathCost = pathCost;
     }
 
     public void SetParent(Node parent)

@@ -16,7 +16,7 @@ public class NodeUI : MonoBehaviour
         this.node = node;
 
         coordinatesText.text = $"{node.GetCoordinates()}";
-        valueText.text = $"{node.GetValue()}";
+        valueText.text = $"{node.GetHeuristicValue()}";
         node.OnChange += RefreshNode;
         RefreshNode();
     }

@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -11,6 +13,8 @@ public class GraphUI : MonoBehaviour
     [SerializeField] Button startSearchButton;
     [SerializeField] Button clearObstaclesButton;
     [SerializeField] TMP_Dropdown searchTypeDropdown;
+    [SerializeField] TMP_Text visitedText;
+    [SerializeField] TMP_Text pathText;
     Graph graph;
 
     void Awake()
@@ -48,6 +52,28 @@ public class GraphUI : MonoBehaviour
     {
         int selectedIndex = searchTypeDropdown.value;
         SearchType searchType = (SearchType)selectedIndex;
-        graph.StartSearch(searchType);
+        List<Node> path = graph.StartSearch(searchType);
+        PrintNodes(graph.GetVisited(), ",", visitedText);
+        PrintNodes(path, "->", pathText);
+    }
+
+    void PrintNodes(IEnumerable<Node> nodes, string separator, TMP_Text uiText)
+    {
+        uiText.text = "";
+        uiText.text += "[";
+
+        Node[] nodesArray = nodes.ToArray();
+
+        for (int i = 0; i < nodesArray.Length; i++)
+        {
+            uiText.text += nodesArray[i].GetCoordinates();
+
+            if (i < nodesArray.Length - 1)
+            {
+                uiText.text += separator;
+            }
+        }
+        
+        uiText.text += "]";
     }
 }
