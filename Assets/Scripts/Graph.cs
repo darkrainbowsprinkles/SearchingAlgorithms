@@ -27,6 +27,65 @@ public class Graph : MonoBehaviour
         return nodes.Values;
     }
 
+    public void SetStartNode(Node node)
+    {
+        if (node == startNode)
+        {
+            return;
+        }
+
+        if (node == goalNode)
+        {
+            return;
+        }
+
+        startNode?.SetIsStart(false);
+        startNode = node;
+
+        if (startNode != null)
+        {
+            startNode.SetIsStart(true);
+            startNode.SetIsWalkable(true);
+        }
+    }
+
+    public void SetGoalNode(Node node)
+    {
+        if (node == startNode)
+        {
+            return;
+        }
+
+        if (node == goalNode)
+        {
+            return;
+        }
+
+        goalNode?.SetIsGoal(false);
+        goalNode = node;
+
+        if (goalNode != null)
+        {
+            goalNode.SetIsGoal(true);
+            goalNode.SetIsWalkable(true);
+        }
+    }
+
+    public void SetObstacleNode(Node node)
+    {
+        if (node == startNode)
+        {
+            return;
+        }
+
+        if (node == goalNode)
+        {
+            return;
+        }
+
+        node.SetIsWalkable(false);
+    }
+
     public List<Node> StartSearch(SearchType searchType)
     {
         ResetGraph();
@@ -47,6 +106,17 @@ public class Graph : MonoBehaviour
         }
 
         return null;
+    }
+
+    public void ResetGraph()
+    {
+        foreach (Node node in nodes.Values)
+        {
+            node.SetParent(null);
+            node.SetIsExplored(false);
+            node.SetIsPath(false);
+            node.SetPathCost(0);
+        }
     }
 
     List<Node> AStarSearch()
@@ -123,17 +193,6 @@ public class Graph : MonoBehaviour
     void Awake()
     {
         CreateGraph();
-    }
-
-    void ResetGraph()
-    {
-        foreach (Node node in nodes.Values)
-        {
-            node.SetParent(null);
-            node.SetIsExplored(false);
-            node.SetIsPath(false);
-            node.SetPathCost(0);
-        }
     }
 
     List<Node> GenericSearch(IFrontier frontier)

@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,6 +8,7 @@ public class NodeUI : MonoBehaviour
     [SerializeField] TMP_Text coordinatesText;
     [SerializeField] TMP_Text valueText;
     [SerializeField] Image statusIcon;
+    public Action<Node> OnNodeSelected;
     Node node;
     Image background;
     Button button;
@@ -29,29 +31,19 @@ public class NodeUI : MonoBehaviour
 
     void OnEnable()
     {
-        button.onClick.AddListener(SetNonWalkable);
+        button.onClick.AddListener(() => OnNodeSelected?.Invoke(node));
     }
 
     void OnDisable()
     {
-        button.onClick.RemoveListener(SetNonWalkable);
-    }
-
-    void SetNonWalkable()
-    {
-        if (node.IsStart() || node.IsGoal())
-        {
-            return;
-        }
-
-        node.SetIsWalkable(false);
-        SetDarkColor(Color.red);
+        button.onClick.RemoveListener(() => OnNodeSelected?.Invoke(node));
     }
 
     void RefreshNode()
     {
         if (!node.IsWalkable())
         {
+            SetDarkColor(Color.red);
             return;
         }
 

@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -12,10 +11,18 @@ public class GraphUI : MonoBehaviour
     [SerializeField] Transform nodesContainer;
     [SerializeField] Button startSearchButton;
     [SerializeField] Button clearObstaclesButton;
+    [SerializeField] Button resetGraphButton;
     [SerializeField] TMP_Dropdown searchTypeDropdown;
+    [SerializeField] TMP_Dropdown nodeSelectionDropdown;
     [SerializeField] TMP_Text visitedText;
     [SerializeField] TMP_Text pathText;
     Graph graph;
+    const string listDefaultText = "No search done yet.";
+
+    enum NodeSelection
+    {
+        Start, Goal, Obstacle
+    }
 
     void Awake()
     {
@@ -26,26 +33,71 @@ public class GraphUI : MonoBehaviour
     {
         startSearchButton.onClick.AddListener(StartSearch);
         clearObstaclesButton.onClick.AddListener(graph.ClearObstacles);
+        resetGraphButton.onClick.AddListener(ResetGraph);
     }
 
     void OnDisable()
     {
         startSearchButton.onClick.RemoveListener(StartSearch);
         clearObstaclesButton.onClick.RemoveListener(graph.ClearObstacles);
+        resetGraphButton.onClick.RemoveListener(ResetGraph);
     }
 
     void Start()
+    {
+        FillGrid();
+        FillDropdown(searchTypeDropdown, typeof(SearchType));
+        FillDropdown(nodeSelectionDropdown, typeof(NodeSelection));
+        SetDefaultLists();
+    }
+
+    void ResetGraph()
+    {
+        SetDefaultLists();
+        graph.ResetGraph();
+    }
+
+    void SetDefaultLists()
+    {
+        visitedText.text = listDefaultText;
+        pathText.text = listDefaultText;
+    }
+
+    void FillGrid()
     {
         foreach (Node node in graph.GetNodes())
         {
             NodeUI nodeInstance = Instantiate(nodePrefab, nodesContainer);
             nodeInstance.SetNode(node);
+            nodeInstance.OnNodeSelected = OnNodeSelected;
         }
+    }
 
-        string[] searchTypes = Enum.GetNames(typeof(SearchType));
+    void FillDropdown(TMP_Dropdown dropdown, Type type)
+    {
+        string[] types = Enum.GetNames(type);
+        dropdown.ClearOptions();
+        dropdown.AddOptions(types.ToList());
+    }
 
-        searchTypeDropdown.ClearOptions();
-        searchTypeDropdown.AddOptions(searchTypes.ToList());
+    void OnNodeSelected(Node node)
+    {
+        NodeSelection nodeSelection = (NodeSelection)nodeSelectionDropdown.value;
+
+        switch (nodeSelection)
+        {
+            case NodeSelection.Start:
+                graph.SetStartNode(node);
+                break;
+
+            case NodeSelection.Goal:
+                graph.SetGoalNode(node);
+                break;
+
+            case NodeSelection.Obstacle:
+                graph.SetObstacleNode(node);
+                break;
+        }
     }
 
     void StartSearch()
